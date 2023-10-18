@@ -1,6 +1,9 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const app = express();
+
+const booksRoutes = require("./routes/books");
+const userRoutes = require("./routes/user");
 
 mongoose
   .connect(
@@ -9,6 +12,8 @@ mongoose
   )
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch(() => console.log("Connexion à MongoDB échouée !"));
+
+const app = express();
 
 //Donne accès au corps de la requête (possibilité d'utiliser bodyParser à la place) :
 app.use(express.json());
@@ -26,5 +31,10 @@ app.use((req, res, next) => {
   );
   next();
 });
+
+app.use(bodyParser.json());
+
+app.use("./api/books", booksRoutes);
+app.use("/api/auth", userRoutes);
 
 module.exports = app;
