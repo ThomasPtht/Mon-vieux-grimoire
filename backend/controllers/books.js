@@ -2,7 +2,7 @@ const Book = require("../models/Book");
 const fs = require("fs");
 
 exports.createBook = (req, res, next) => {
-  const bookObject = JSON.parse(req, body.thing);
+  const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
   const book = new Book({
@@ -32,7 +32,6 @@ exports.modifyBook = (req, res, next) => {
         }`,
       }
     : { ...req.body };
-
   delete bookObject._userId;
   Book.findOne({ _id: req.params.id })
     .then((book) => {
@@ -41,7 +40,7 @@ exports.modifyBook = (req, res, next) => {
       } else {
         Book.updateOne(
           { _id: req.params.id },
-          { ...thingObject, _id: req.params.id }
+          { ...bookObject, _id: req.params.id }
         )
           .then(() => res.status(200).json({ message: "Livre modifié!" }))
           .catch((error) => res.status(401).json({ error }));
@@ -81,6 +80,55 @@ exports.getOneBook = (req, res, next) => {
 
 exports.getAllBooks = (req, res, next) => {
   Book.find()
+    .then((books) => res.status(200).json(books))
+    .catch((error) => res.status(400).json({ error }));
+};
+
+exports.rating = (req, res, next) => {
+  const userId = req.auth.userId;
+  const { rating } = req.body;
+  const userRating = { userId, grade: rating };
+
+  Book.findByIdAndUpdate(
+    { _id: req.params.id },
+    { $push: { ratings: userRating } },
+    { new: true }
+  )
+    .then((book) => {
+      if (!book) {
+        return res.status(404).json({ message: "Livre non trouvé" });
+      }
+
+      // Calculer la nouvelle note moyenne
+
+      const totalRatings = book.ratings.length;
+      const totalRatingSum = book.ratings.reduce(
+        (sum, rating) => sum + rating.grade,
+        0
+      );
+
+      book.averageRating = totalRatingSum / totalRatings;
+
+      book
+        .save()
+        .then((book) => {
+          res.status(200).json(book);
+        })
+        .catch((error) => {
+          res.status(400).json({ error });
+        });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error: "Une erreur s'est produite lors de la mise à jour de la note.",
+      });
+    });
+};
+
+exports.bestRating = (req, res, next) => {
+  Book.find()
+    .sort({ averageRating: -1 }) // Tri par ordre décroissant de la note moyenne
+    .limit(3) // Limiter les résultats aux trois premiers
     .then((books) => res.status(200).json(books))
     .catch((error) => res.status(400).json({ error }));
 };
