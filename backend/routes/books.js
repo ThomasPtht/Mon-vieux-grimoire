@@ -1,12 +1,11 @@
 const express = require("express");
 const auth = require("../middleware/auth");
-const router = express.Router();
+const router = express.Router(); // Création  d'un routeur express pour gérer les routes
 const multer = require("../middleware/multer-config");
 
 const booksCtrl = require("../controllers/books");
 
-//Routes :
-
+// Définition des routes :
 router.get("/", booksCtrl.getAllBooks);
 router.get("/bestrating", booksCtrl.bestRating);
 router.post("/", auth, multer, booksCtrl.createBook);

@@ -2,14 +2,17 @@ const Book = require("../models/Book");
 const sharp = require("sharp");
 const fs = require("fs");
 
+// Utilisation de Sharp pour redimensionner et compresser l'image
 sharp("image.jpg")
-  .jpeg({ quality: 80 })
-  .toFile("compressed_image.jpg", (err, info) => {
+  .resize(300, 200) // Redimensionne l'image à une largeur de 300 pixels et une hauteur de 200 pixels
+  .jpeg({ quality: 80 }) // Comprime l'image en format JPEG avec une qualité de 80 %
+  .toFile("resized_and_compressed_image.jpg", (err, info) => {
     if (err) {
       console.error(err);
     }
   });
 
+// Crée un nouveau livre
 exports.createBook = (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
@@ -32,6 +35,7 @@ exports.createBook = (req, res, next) => {
     });
 };
 
+// Met à jour un livre
 exports.modifyBook = (req, res, next) => {
   const bookObject = req.file
     ? {
@@ -42,11 +46,13 @@ exports.modifyBook = (req, res, next) => {
       }
     : { ...req.body };
   delete bookObject._userId;
+  // Vérifie si l'utilisateur est autorisé à modifier le livre
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (book.userId != req.auth.userId) {
         res.status(401).json({ message: "Not authorized" });
       } else {
+        // Effectue la mise à jour du livre
         Book.updateOne(
           { _id: req.params.id },
           { ...bookObject, _id: req.params.id }
@@ -60,6 +66,7 @@ exports.modifyBook = (req, res, next) => {
     });
 };
 
+// Supprime un livre
 exports.deleteBook = (req, res, next) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => {
@@ -81,18 +88,21 @@ exports.deleteBook = (req, res, next) => {
     });
 };
 
+// Récupère les détails d'un livre spécifique
 exports.getOneBook = (req, res, next) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => res.status(200).json(book))
     .catch((error) => res.status(404).json({ error }));
 };
 
+// Récupère la liste de tous les livres
 exports.getAllBooks = (req, res, next) => {
   Book.find()
     .then((books) => res.status(200).json(books))
     .catch((error) => res.status(400).json({ error }));
 };
 
+// Ajoute une note à un livre et calcule la note moyenne
 exports.rating = (req, res, next) => {
   const userId = req.auth.userId;
   const { rating } = req.body;

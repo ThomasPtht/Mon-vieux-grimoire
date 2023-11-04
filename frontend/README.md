@@ -1,10 +1,10 @@
 # Mon vieux Grimoire
 
+![Alt text](image.png)
 
-## Comment lancer le projet ? 
+# Développement du back-end d'un site de notation de livres
 
-### Avec npm
-
-Faites la commande `npm install` pour installer les dépendances puis `npm start` pour lancer le projet. 
-
-Le projet a été testé sur node 19. 
+- Initialisation du projet, installation de Nodemon afin d'éviter de redémarrer le serveur à chaque modification.
+- Installation et exécution d'Express
+- Mise en oeuvre d'opérations CRUD, structuration du code avec des routeurs, contrôleurs ...
+- Intégration d'un système d'authification utilisateur sécurisé
