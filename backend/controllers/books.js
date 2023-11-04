@@ -1,5 +1,14 @@
 const Book = require("../models/Book");
+const sharp = require("sharp");
 const fs = require("fs");
+
+sharp("image.jpg")
+  .jpeg({ quality: 80 })
+  .toFile("compressed_image.jpg", (err, info) => {
+    if (err) {
+      console.error(err);
+    }
+  });
 
 exports.createBook = (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
