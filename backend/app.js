@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const path = require("path");
 
+require("dotenv").config();
+
 //Importation des fichiers de routes
 const booksRoutes = require("./routes/books");
 const userRoutes = require("./routes/user");
