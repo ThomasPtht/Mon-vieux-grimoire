@@ -13,7 +13,7 @@ const userRoutes = require("./routes/user");
 //Connexion à la BDD MongoDB
 mongoose
   .connect(
-    "mongodb+srv://tpotherat:T24058789p@cluster0.wjaqgsz.mongodb.net/?retryWrites=true&w=majority",
+    "mongodb+srv://tpotherat:cbuYdmgjuTg91jMf@cluster0.wjaqgsz.mongodb.net/?retryWrites=true&w=majority",
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => console.log("Connexion à MongoDB réussie !"))
