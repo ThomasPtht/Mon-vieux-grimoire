@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const jwtSecret = process.env.JWT_SECRET;
 
-// require("dotenv").config();
 // Middleware pour vérifier et décoder un token JWT dans les en-têtes de la requête
 module.exports = (req, res, next) => {
   try {
@@ -9,7 +8,7 @@ module.exports = (req, res, next) => {
     const decodedToken = jwt.verify(token, jwtSecret); // Vérifie et décode le token en utilisant la clé secrète stockée dans les variables d'environnement
     const userId = decodedToken.userId;
     req.auth = {
-      userId: userId, // Stock l'ID de l'utilisateur dans l'objet "auth" de la requête pour une utilisation ultérieure
+      userId: userId, // Stock l'ID de l'utilisateur dans l'objet "auth" de la requête pour l'exploiter dans nos routes.
     };
     next();
   } catch (error) {

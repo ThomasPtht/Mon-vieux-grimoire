@@ -2,7 +2,7 @@
 const http = require("http"); // Module HTTP de base
 const app = require("./app"); // L'application Express
 
-// Fonction pour normaliser le numéro de port
+// Renvoie un port valide, fourni sous la forme d'un numéro ou d'une chaîne
 const normalizePort = (val) => {
   const port = parseInt(val, 10); // Analyse le numéro de port en tant qu'entier décimal
 

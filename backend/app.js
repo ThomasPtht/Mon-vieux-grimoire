@@ -12,10 +12,10 @@ const userRoutes = require("./routes/user");
 
 //Connexion à la BDD MongoDB
 mongoose
-  .connect(
-    "mongodb+srv://tpotherat:cbuYdmgjuTg91jMf@cluster0.wjaqgsz.mongodb.net/?retryWrites=true&w=majority",
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  )
+  .connect(process.env.DB_LINK, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 
@@ -36,13 +36,13 @@ app.use((req, res, next) => {
   next();
 });
 
-// Configuration de l'analyse des données JSON dans les requêtes
+// Analyse et extrait le corps des requêtes entrantes
 app.use(bodyParser.json());
 
-// Configuration des routes pour les livres et l'authentification des utilisateurs
+// Configuration des routes principales pour les livres et l'authentification des utilisateurs
 app.use("/api/books", booksRoutes);
 app.use("/api/auth", userRoutes);
-// Configuration de la gestion des images
+// Configuration de la gestion des images, accessibles sous l'url images
 app.use("/images", express.static(path.join(__dirname, "images")));
 
 module.exports = app;

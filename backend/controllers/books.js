@@ -1,11 +1,12 @@
 const Book = require("../models/Book");
-const fs = require("fs");
+const fs = require("fs"); // package permet de modifier/supprimer fichiers
+const path = require("path");
 
 // Crée un nouveau livre
 exports.createBook = (req, res, next) => {
-  const bookObject = JSON.parse(req.body.book);
+  const bookObject = JSON.parse(req.body.book); // analyse de la requête pour obtenir les données
   delete bookObject._id;
-  delete bookObject._userId;
+  delete bookObject._userId; // Utiliser l'user id du token
   const book = new Book({
     ...bookObject,
     userId: req.auth.userId,
@@ -41,16 +42,53 @@ exports.modifyBook = (req, res, next) => {
       if (book.userId != req.auth.userId) {
         res.status(401).json({ message: "Not authorized" });
       } else {
-        // Effectue la mise à jour du livre
-        Book.updateOne(
-          { _id: req.params.id },
-          { ...bookObject, _id: req.params.id }
-        )
-          .then(() => res.status(200).json({ message: "Livre modifié!" }))
-          .catch((error) => res.status(401).json({ error }));
+        // Supprime l'ancienne image associée au livre
+        if (book.imageUrl) {
+          const filename = book.imageUrl.split("/images/")[1];
+          const filePath = path.join("images", filename);
+
+          fs.unlink(filePath, (err) => {
+            if (err) {
+              console.error("Error deleting old image:", err);
+              // Gérez l'erreur ici si nécessaire
+              res.status(500).json({ error: "Error deleting old image" });
+            } else {
+              console.log("Old image deleted successfully");
+
+              // Effectue la mise à jour du livre après la suppression de l'ancienne image
+              Book.updateOne(
+                { _id: req.params.id },
+                { ...bookObject, _id: req.params.id }
+              )
+                .then(() => {
+                  console.log("Book updated successfully");
+                  res.status(200).json({ message: "Livre modifié!" });
+                })
+                .catch((error) => {
+                  console.error("Error updating book:", error);
+                  res.status(401).json({ error });
+                });
+            }
+          });
+        } else {
+          // Si le livre n'a pas d'ancienne image, effectuez simplement la mise à jour
+          Book.updateOne(
+            { _id: req.params.id },
+            { ...bookObject, _id: req.params.id }
+          )
+            .then(() => {
+              console.log("Book updated successfully");
+              res.status(200).json({ message: "Livre modifié!" });
+            })
+            .catch((error) => {
+              console.error("Error updating book:", error);
+              res.status(401).json({ error });
+            });
+        }
       }
     })
     .catch((error) => {
+      console.error("Error finding book:", error);
       res.status(400).json({ error });
     });
 };
